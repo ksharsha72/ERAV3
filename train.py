@@ -11,26 +11,20 @@ def train():
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # Enhanced data augmentation pipeline
+    # Basic transform without augmentation for better initial training
     transform_train = transforms.Compose(
         [
-            transforms.RandomAffine(
-                degrees=10,  # Random rotation up to 10 degrees
-                translate=(0.1, 0.1),  # Random translation up to 10%
-                scale=(0.9, 1.1),  # Random scaling between 90% and 110%
-            ),
             transforms.ToTensor(),
             transforms.Normalize((0.1307,), (0.3081,)),
-            transforms.RandomErasing(p=0.2, scale=(0.02, 0.1)),  # Random erasing
         ]
     )
 
-    # Test transform should remain simple
+    # Test transform remains the same
     transform_test = transforms.Compose(
         [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
     )
 
-    # Load MNIST dataset with augmentation
+    # Load MNIST dataset
     train_loader = torch.utils.data.DataLoader(
         datasets.MNIST("data", train=True, download=True, transform=transform_train),
         batch_size=64,
@@ -39,7 +33,9 @@ def train():
 
     # Initialize model
     model = MNISTModel().to(device)
-    optimizer = optim.Adam(model.parameters(), lr=0.003)
+    optimizer = optim.Adam(
+        model.parameters(), lr=0.007
+    )  # Slightly increased learning rate
     criterion = nn.CrossEntropyLoss()
 
     # Training loop
